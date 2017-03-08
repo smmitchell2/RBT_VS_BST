@@ -2,11 +2,32 @@
 #include <stdio.h>
 #include "bst.h"
 
-bst *newBST(void (*)(FILE *,void *),int (*)(void *,void *)){
+bstNode *newBSTNode(void *data){
+    bstNode *n = malloc(sizeof(bstNode));
+    n->left = NULL;
+    n->right = NULL;
+    n->parent = NULL;
+    n->value = data;
+    return n;
+}
+
+bst *newBST(void (*d)(FILE *,void *),int (*c)(void *,void *)){
+    bst *tree = malloc(sizeof(bst));
+    tree->root = NULL;
+    tree->size = 0;
+    tree->display = d;
+    tree->compare = c;
+    return tree;
 
 }
 
 bstNode *insertBST(bst *tree, void *data){
+    bstNode *n = newBSTNode(data);
+    if(tree->root == NULL) {tree->root = n;}
+    else if((tree->compare(tree->root->value,data)) < 0){ }
+    else if((tree->compare(tree->root->value,data)) > 0){ }
+    else if((tree->compare(tree->root->value,data)) == 0){ }
+    return n;
 
 }
 

@@ -17,6 +17,7 @@ typedef struct bst{
   int (*compare)(void *,void *);
 } bst;
 
+extern bstNode *newBSTNode(void *data);
 extern bst *newBST(void (*)(FILE *,void *),int (*)(void *,void *));
 extern bstNode *insertBST(bst *,void *);
 extern int findBST(bst *,void *);
