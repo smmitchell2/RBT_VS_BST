@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "queue.h"
 #include "bst.h"
 
 bstNode *newBSTNode(void *data){
@@ -48,7 +49,7 @@ void pruneBSTNode(bst *tree,bstNode *n){
 }
 
 int sizeBST(bst *tree){
-
+    return tree->size;
 }
 
 void statisticsBST(bst *tree,FILE *FP){
