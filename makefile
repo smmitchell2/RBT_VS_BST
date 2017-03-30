@@ -14,16 +14,13 @@ dll.o : dll.c dll.h
 queue.o : queue.c queue.h sll.h
 	gcc $(OOPTS) queue.c
 
-comparator.o: comparator.c comparator.h integer.h real.h
-	gcc $(OOPTS) comparator.c
-
-bst.o: bst.c queue.h comparator.h
+bst.o: bst.c queue.h
 	gcc $(OOPTS) bst.c
 
-vbst.o: vbst.c queue.h comparator.h bst.h
+vbst.o: vbst.c queue.h bst.h
 	gcc $(OOPTS) vbst.c
 
-rbt.o: rbt.c queue.h comparator.h bst.h
+rbt.o: rbt.c queue.h bst.h
 	gcc $(OOPTS) rbt.c
 
 scanner.o : scanner.c scanner.h
@@ -36,4 +33,4 @@ test :
 	@echo
 	
 clean   :
-	rm -f *.o sqsort
+	rm -f *.o bstrees

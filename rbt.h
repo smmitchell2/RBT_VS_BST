@@ -21,5 +21,4 @@ extern int sizeRBT(rbt *);
 extern int wordsRBT(rbt *);
 extern void statisticsRBT(rbt *,FILE *);
 extern void displayRBT(FILE *,rbt *);
-extern void checkRBT(rbt *);               //optional
 #endif

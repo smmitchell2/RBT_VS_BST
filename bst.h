@@ -27,5 +27,4 @@ extern void pruneBSTNode(bst *,bstNode *);
 extern int sizeBST(bst *);
 extern void statisticsBST(bst *,FILE *);
 extern void displayBST(FILE *,bst *);
-extern void checkBST(bst *);                //optional
 #endif
