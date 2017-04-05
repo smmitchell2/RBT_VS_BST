@@ -86,7 +86,7 @@ void deleteVBST(vbst *v, void *value){
 	  return;
 	}
 	else{
-	  fprintf(stderr, "Value \"%s\" not found.\n", value);
+	  fprintf(stderr, "Value \"%s\" not found.\n", (char*)value);
     }
 }
 

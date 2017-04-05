@@ -266,7 +266,3 @@ static void recursiveHelper(bst *t, bstNode *root, FILE *fp){
 void displayBST(FILE *fp,bst *tree){
   recursiveHelper(tree, tree->root, fp);
 }
-
-void checkBST(bst *tree){
-
-}

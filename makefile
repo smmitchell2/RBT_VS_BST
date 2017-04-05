@@ -5,11 +5,11 @@ LOOPTS = -Wall -std=c99 -g
 bstrees : $(OBJS)
 	gcc $(LOOPTS) $(OBJS) -o bstrees
 
-bstrees.o : bstrees.c scanner.h comparator.h dll.h queue.h vbst.h bst.h rbt.h
+bstrees.o : bstrees.c scanner.h comparator.h sll.h queue.h vbst.h bst.h rbt.h
 	gcc $(OOPTS) bstrees.c
 
-dll.o : dll.c dll.h
-	gcc $(OOPTS) dll.c
+sll.o : sll.c sll.h
+	gcc $(OOPTS) sll.c
 
 queue.o : queue.c queue.h sll.h
 	gcc $(OOPTS) queue.c
@@ -28,7 +28,7 @@ scanner.o : scanner.c scanner.h
 
 test :
 	#testing#
-	bstrees
+	bstrees -v s.txt command.txt
 	@echo
 	@echo
 	
