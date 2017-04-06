@@ -28,9 +28,10 @@ scanner.o : scanner.c scanner.h
 
 test :
 	#testing#
+	./bstrees -r s.txt command.txt
+	@echo
+	@echo
 	./bstrees -v s.txt command.txt
-	@echo
-	@echo
 	
 clean   :
 	rm -f *.o bstrees
