@@ -28,7 +28,7 @@ scanner.o : scanner.c scanner.h
 
 test :
 	#testing#
-	bstrees -v s.txt command.txt
+	./bstrees -v s10.0 command.txt
 	@echo
 	@echo
 	
