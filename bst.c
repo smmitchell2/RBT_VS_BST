@@ -112,7 +112,6 @@ bstNode *insertHelper(bst *tree, bstNode *root, bstNode *prev, void *valToInsert
 bstNode *insertBST(bst *tree, void *data){
   bstNode *n = newBSTNode(data);
   tree->root = insertHelper(tree, tree->root, NULL, n);
-  //return tree->root;
   return n;
 }
 

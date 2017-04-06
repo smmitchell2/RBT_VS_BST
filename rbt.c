@@ -190,7 +190,7 @@ void insertRBT(rbt *r, void *value){
 	if(v == 0){
 		(void)insertBST(r->tree, newValue);
 		bstNode *temp = findBSTNode(r->tree, newValue);
-		rbtValue *tempValue = temp->value; //issue here
+		rbtValue *tempValue = temp->value;
 		tempValue->color = 1;
 		insertionFixUp(r, findBSTNode(r->tree, tempValue));
 		r->size++;

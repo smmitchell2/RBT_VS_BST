@@ -12,40 +12,22 @@ void displayString(FILE *fp, void *v){
     fprintf(fp, "\"%s\"", (char*)v);
 }
 
-void cleanUp(char *word){
-    char *src = word, *dst = word;
-	while (*src){
-	    if(ispunct((unsigned char)*src)){
-		    src++;
-		}
-		else if(isupper((unsigned char)*src)){
-			*dst++ = tolower((unsigned char)*src);
-			src++;
-		}
-		else if(isdigit((unsigned char)*src)){
-			src++;
-		}
-		else if(isspace(*src) && isspace(*(src+1))){
-			while(isspace(*(src+1))){
-				src++;
-			}
-		}
-		else if(isspace(*src)){
-			*src = ' ';
-			*dst++ = *src++;
-		}
-		else if(!islower((unsigned char)*src)){
-			src++;
-		}
-		else if(src == dst){
-			src++;
-			dst++;
-		}
-		else{
-			*dst++ = *src++;
-		}
-	}
-	*dst = 0;
+char *grammar(char *word){
+  int i;
+  int spot = 0;
+  char *newWord = malloc(sizeof(char)*strlen(word)+1);
+  for(i = 0; i < (int) strlen(word); i++){
+    if(isalpha(word[i])){
+      spot = 0;
+      word[i] = tolower(word[i]);
+      sprintf(newWord,"%s%c",newWord,word[i]);
+    }
+    else if(isspace(word[i]) && spot == 0){
+      sprintf(newWord,"%s ",newWord);
+      spot = 1;
+    }
+  }
+  return newWord;
 }
 
 int main(int argc, char **argv){
@@ -64,20 +46,20 @@ int main(int argc, char **argv){
 	}
 	if(strcmp(argv[1], "-r") == 0){
 		char variable = readChar(data);
-		char *var;
+		char *word;
 		rbt *r = newRBT(displayString, stringComparator);
 		while(!feof(data)){
 			if(variable == '"'){
 				ungetc(variable, data);
-				var = readString(data);
+				word = readString(data);
 			}
 			else{
 				ungetc(variable, data);
-				var = readToken(data);
+				word = readToken(data);
 			}
-			cleanUp(var);
-			if(strcmp(var, "") != 0){
-				insertRBT(r, var); //issue here
+			word = grammar(word);
+			if(strcmp(word, "") != 0){
+				insertRBT(r, word);
 			}
 			variable = readChar(data);
 		}
@@ -94,7 +76,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				grammar(tempCommand);
 				if(strcmp(tempCommand, "") != 0){
 					insertRBT(r, tempCommand);
 				}
@@ -110,7 +92,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				tempCommand = grammar(tempCommand);
 			}
 			else if(commandVariable == 'f'){
 				char *tempCommand;
@@ -123,7 +105,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				tempCommand = grammar(tempCommand);
 				fprintf(output, "Frequency of \"%s\": %d\n", tempCommand, findRBT(r, tempCommand));
 			}
 			else if(commandVariable == 's'){
@@ -141,20 +123,20 @@ int main(int argc, char **argv){
 	}
 	else if(strcmp(argv[1], "-v") == 0){
 		char variable = readChar(data);
-		char *var;
+		char *word;
 		vbst *v = newVBST(displayString, stringComparator);
 		while(!feof(data)){
 			if(variable == '"'){
 				ungetc(variable, data);
-				var = readString(data);
+				word = readString(data);
 			}
 			else{
 				ungetc(variable, data);
-				var = readToken(data);
+				word = readToken(data);
 			}
-			cleanUp(var);
-			if(strcmp(var, "") != 0){
-				insertVBST(v, var);
+			word = grammar(word);
+			if(strcmp(word, "") != 0){
+				insertVBST(v, word);
 			}
 			variable = readChar(data);
 		}
@@ -171,7 +153,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				tempCommand = grammar(tempCommand);
 				if(strcmp(tempCommand, "") != 0){
 					insertVBST(v, tempCommand);
 				}
@@ -187,7 +169,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				tempCommand = grammar(tempCommand);
 				if(strcmp(tempCommand, "") != 0){
 					deleteVBST(v, tempCommand);
 				}
@@ -203,7 +185,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				cleanUp(tempCommand);
+				tempCommand = grammar(tempCommand);
 				fprintf(output, "Frequency of \"%s\": %d", tempCommand, findVBST(v, tempCommand));
 			}
 			else if(commandVariable == 's'){
