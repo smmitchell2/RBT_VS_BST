@@ -76,7 +76,7 @@ int main(int argc, char **argv){
 					ungetc(commandVariable, commands);
 					tempCommand = readToken(commands);
 				}
-				grammar(tempCommand);
+				tempCommand = grammar(tempCommand);
 				if(strcmp(tempCommand, "") != 0){
 					insertRBT(r, tempCommand);
 				}
