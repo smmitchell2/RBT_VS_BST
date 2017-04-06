@@ -109,7 +109,6 @@ static int color(rbtValue *rv){
 	}
 }
 
-
 static bstNode *uncle(rbt *r, bstNode *b){
 	if(b->parent == NULL || b->parent->parent->left == NULL){
 		return r->tree->root;
@@ -122,7 +121,6 @@ static bstNode *uncle(rbt *r, bstNode *b){
 	}
 	return r->tree->root;
 }
-
 
 static void insertionFixUp(rbt *r, bstNode *node){
 	while(1){
@@ -186,16 +184,13 @@ static void insertionFixUp(rbt *r, bstNode *node){
 	root->color = 0;
 }
 
-
-
-
 void insertRBT(rbt *r, void *value){
 	rbtValue *newValue = newRBTValue(r, value);
-	int theValue = findBST(r->tree, newValue);
-	if(theValue == 0){
+	int v = findBST(r->tree, newValue);
+	if(v == 0){
 		(void)insertBST(r->tree, newValue);
 		bstNode *temp = findBSTNode(r->tree, newValue);
-		rbtValue *tempValue = temp->value;
+		rbtValue *tempValue = temp->value; //issue here
 		tempValue->color = 1;
 		insertionFixUp(r, findBSTNode(r->tree, tempValue));
 		r->size++;

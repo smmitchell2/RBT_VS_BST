@@ -100,10 +100,10 @@ bstNode *insertHelper(bst *tree, bstNode *root, bstNode *prev, void *valToInsert
 	}
 	return root;	
   }
-  else if(tree->compare(root, temp) > 0){
+  else if(tree->compare(root->value, temp->value) > 0){
     root->left = insertHelper(tree, root->left, root, valToInsert);
   }
-  else if(tree->compare(root, temp) <= 0){
+  else if(tree->compare(root->value, temp->value) <= 0){
 	root->right = insertHelper(tree, root->right, root, valToInsert);
   }
   return root;
@@ -112,7 +112,7 @@ bstNode *insertHelper(bst *tree, bstNode *root, bstNode *prev, void *valToInsert
 bstNode *insertBST(bst *tree, void *data){
   bstNode *n = newBSTNode(data);
   tree->root = insertHelper(tree, tree->root, NULL, n);
-  return tree->root;
+  //return tree->root;
   return n;
 }
 
@@ -121,13 +121,13 @@ static int findHelper(bst *tree, bstNode *root, void *value){
   if(!root){
     return 0;
   }
-  if(tree->compare(root, tempNode) > 0){
+  if(tree->compare(root->value, tempNode->value) > 0){
     return findHelper(tree, root->left, tempNode);
   }
-  else if(tree->compare(root, tempNode) < 0){
+  else if(tree->compare(root->value, tempNode->value) < 0){
 	return findHelper(tree, root->right, tempNode);
   }
-  else if(tree->compare(root, tempNode) == 0){
+  else if(tree->compare(root->value, tempNode->value) == 0){
     return 1;
   }
   return 0;
@@ -143,10 +143,10 @@ static bstNode *findBSTHelper(bst *tree, bstNode *root, void *value){
   if(!root){
     return 0;
   }
-  if(tree->compare(root, tempNode) > 0){
+  if(tree->compare(root->value, tempNode->value) > 0){
     root = findBSTHelper(tree, root->left, value);
   }
-  else if(tree->compare(root, tempNode) < 0){
+  else if(tree->compare(root->value, tempNode->value) < 0){
     root = findBSTHelper(tree, root->right, value);
   }
   return root;
@@ -177,14 +177,14 @@ bstNode *swapToLeafBSTNode(bstNode *n){
 
 void pruneBSTNode(bst *tree,bstNode *n){
   if(n->parent->left != NULL){
-    if(tree->compare(n->parent->left, n) == 0){
+    if(tree->compare(n->parent->left->value, n->value) == 0){
 	  n->parent->left = NULL;
 	  n = NULL;
 	  return;
     }
   }
   if(n->parent->right != NULL){
-	if(tree->compare(n->parent->right, n) == 0){
+	if(tree->compare(n->parent->right->value, n->value) == 0){
 	  n->parent->right = NULL;
 	  n = NULL;
 	  return;
@@ -244,16 +244,16 @@ static void recursiveHelper(bst *t, bstNode *root, FILE *fp){
 		enqueue(q, n->right);
 	  }
 	  if(n->parent->left != NULL){
-	    if(t->compare(n, n->parent->left) == 0){
+	    if(t->compare(n->value, n->parent->left->value) == 0){
 		  fprintf(fp, "-l");
 		}
       }
 	  if(n->parent->right != NULL){
-	    if(t->compare(n, n->parent->right) == 0){
+	    if(t->compare(n->value, n->parent->right->value) == 0){
 		  fprintf(fp, "-r");
 	    }
 	  }
-	  if(t->compare(n, n->parent) == 0){
+	  if(t->compare(n->value, n->parent->value) == 0){
 	    fprintf(fp, "-");
 	  }
 	  levelNodes--;

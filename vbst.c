@@ -13,10 +13,10 @@ typedef struct vbstValue{
 static void vbstDisplay(FILE *, void *);
 
 static int vbstComparator(void *x, void *y){
-  bstNode *temp1 = x;
-  bstNode *temp2 = y;
-  vbstValue *a = temp1->value;
-  vbstValue *b = temp2->value;
+  //bstNode *temp1 = x;
+  //bstNode *temp2 = y;
+  vbstValue *a = x;//temp1->value;
+  vbstValue *b = y;//temp2->value;
   return a->compare(a->value, b->value);
 }
 

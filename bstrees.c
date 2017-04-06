@@ -77,7 +77,7 @@ int main(int argc, char **argv){
 			}
 			cleanUp(var);
 			if(strcmp(var, "") != 0){
-				insertRBT(r, var);
+				insertRBT(r, var); //issue here
 			}
 			variable = readChar(data);
 		}
