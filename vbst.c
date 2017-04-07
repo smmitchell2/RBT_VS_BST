@@ -38,20 +38,20 @@ static vbstValue *newVBSTValue(vbst *v, void *value){
 }
 
 
-void insertVBST(vbst *v, void *value){
-  vbstValue *newValue = newVBSTValue(v, value);	
-  int theValue = findBST(v->tree, newValue);
-  if(theValue == 0){
-    (void)insertBST(v->tree, newValue);
-	v->size++;
-	v->words++;
-  }
-  else{
-    bstNode *temp = findBSTNode(v->tree, newValue);
-    vbstValue *temporary = temp->value;
-	temporary->freq += 1;
-	v->size++;
-  }
+void insertVBST(vbst *v, void *val){
+  //get the value in the tree if it exist
+    vbstValue *vbstV = newVBSTValue(v,val);
+    vbstV->value = val;
+    bstNode *n = findBSTNode(v->tree,vbstV);
+    //if that node doesn't exist
+    if (n==0) {
+        v->size++;
+        (void)insertBST(v->tree,vbstV);
+    }
+    //if it did update it's freq
+    else
+        ((vbstValue *)(n->value))->freq++;
+    v->words++;
 }
 
 int findVBST(vbst *v, void *value){
@@ -97,7 +97,7 @@ int wordsVBST(vbst *v){
 }
 
 void statisticsVBST(vbst *v, FILE *fp){
-  fprintf(fp, "Words/Phrases: %d\n", sizeVBST(v));
+  fprintf(fp, "Words/Phrases: %d\n", wordsVBST(v));
   statisticsBST(v->tree, fp);
 }
 

@@ -14,16 +14,10 @@ typedef struct rbtValue{
 static rbtValue *newRBTValue(rbt *, void *);
 static void rbtDisplay(FILE *, void *);
 
-static int rbtComparator(void *x, void *y){
-	if(x == NULL || y == NULL){
-		return 1;
-	}
-	rbtValue *a = x;
-	rbtValue *b = y;
-	if(a->value == NULL || b->value == NULL){
-		return 1;
-	}
-	return a->compare(a->value, b->value);
+static int rbtComparator(void *a, void *b){
+	rbtValue *x = (rbtValue*)a;
+    rbtValue *y = (rbtValue*)b;
+    return x->compare(x->value,y->value);
 }
 
 static int nodeComparator(void *x, void *y){
@@ -42,6 +36,10 @@ static int nodeComparator(void *x, void *y){
 
 rbt *newRBT(void (*display)(FILE *, void *), int(*comparator)(void *, void *)){
 	rbt *newRBT = malloc(sizeof(rbt));
+	    if (newRBT == 0) {
+        fprintf(stderr,"out of memory");
+        exit(-1);
+    }
 	newRBT->tree = newBST(rbtDisplay, rbtComparator);
 	newRBT->display = display;
 	newRBT->compare = comparator;
@@ -184,8 +182,30 @@ static void insertionFixUp(rbt *r, bstNode *node){
 	root->color = 0;
 }
 
-void insertRBT(rbt *r, void *value){
-	rbtValue *newValue = newRBTValue(r, value);
+void insertRBT(rbt *r, void *val){
+	rbtValue *rbtV = newRBTValue(r,val);
+    rbtV->value = val;
+    //if it's the root incriment size/words, color is already Black and insert it
+    if (sizeRBT(r) == 0) {
+        r->size++;
+        r->words++;
+        insertBST(r->tree, rbtV);
+        return;
+    }
+    bstNode *n = findBSTNode(r->tree,rbtV);
+    //if it doens't exist
+    if (n == 0) {
+        r->size++;
+        //set node red
+        rbtV->color = 1;
+        n = insertBST(r->tree, rbtV);
+        insertionFixUp(r,n);
+    }
+    else
+        ((rbtValue *)(n->value))->freq++;
+    r->words++;
+
+	/*rbtValue *newValue = newRBTValue(r, value);
 	int v = findBST(r->tree, newValue);
 	if(v == 0){
 		(void)insertBST(r->tree, newValue);
@@ -201,7 +221,7 @@ void insertRBT(rbt *r, void *value){
 		rbtValue *temporary = temp->value;
 		temporary->freq += 1;
 		r->size++;
-	}
+	}*/
 }
 
 int findRBT(rbt *r, void *value){
@@ -228,7 +248,7 @@ void deleteRBT(rbt *r, void *v){
 }
 
 void statisticsRBT(rbt *r, FILE *fp){
-	fprintf(fp, "Words/Phrases: %d\n", sizeRBT(r));
+	fprintf(fp, "Words/Phrases: %d\n", wordsRBT(r));
 	statisticsBST(r->tree, fp);
 }
 

@@ -23,15 +23,18 @@ vbst.o: vbst.c queue.h bst.h
 rbt.o: rbt.c queue.h bst.h
 	gcc $(OOPTS) rbt.c
 
+comparator.o : comparator.c comparator.h
+	gcc $(OOPTS) comparator.c
+
 scanner.o : scanner.c scanner.h
 	gcc $(OOPTS) scanner.c
 
 test :
-	#testing#
-	./bstrees -r s.txt command.txt
+	@echo testing vanilla BST
+	./bstrees -v s.txt display
 	@echo
-	@echo
-	./bstrees -v s.txt command.txt
+	@echo testing RBT
+	./bstrees -r s.txt display
 	
 clean   :
 	rm -f *.o bstrees

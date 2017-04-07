@@ -1,0 +1,13 @@
+/Users/aimestudent2/RBT_VS_BST
+Fri Apr  7 12:13:31 CDT 2017
+WORKING				rbt.c
+bst.c				rbt.h
+bst.h				s.txt
+bstrees.c			scanner.c
+comparator.c			scanner.h
+comparator.h			sll.c
+display				sll.h
+empty				smmitchell2@crimson.ua.edu
+makefile			vbst.c
+queue.c				vbst.h
+queue.h
