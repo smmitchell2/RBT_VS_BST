@@ -1,209 +1,50 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include "bst.h"
-#include "vbst.h"
-#include "rbt.h"
-#include "scanner.h"
+#include "read.h"
 #include "comparator.h"
 
-void displayString(FILE *fp, void *v){
-    fprintf(fp, "\"%s\"", (char*)v);
-}
 
-char *grammar(char *word){
-  int i;
-  int spot = 0;
-  char *newWord = malloc(sizeof(char)*strlen(word)+1);
-  for(i = 0; i < (int) strlen(word); i++){
-    if(isalpha(word[i])){
-      spot = 0;
-      word[i] = tolower(word[i]);
-      sprintf(newWord,"%s%c",newWord,word[i]);
+int main (int argc, char **argv) {
+    FILE *fpCorpus = NULL, *fpCommands = NULL, *fpOutfile = NULL;
+    if (argc < 2 || argc > 5)
+        fprintf(stderr,"Error: Improper number of commands!\n");
+    //open corpus
+    fpCorpus = fopen(argv[2], "r");
+    //errror checking
+    if (fpCorpus == NULL)
+        fprintf(stderr,"Error: %s file didn't open!\n",argv[2]);
+    //open commands
+    fpCommands = fopen(argv[3], "r");
+    //errror checking
+    if (fpCommands == NULL)
+        fprintf(stderr,"Error: %s file didn't open!\n",argv[3]);
+    //open output file if one is given
+    if (argc == 5) {
+        fpOutfile = fopen(argv[4], "w");
+        if (fpOutfile == NULL)
+            fprintf(stderr,"Error: %s file didn't open!\n",argv[4]);
     }
-    else if(isspace(word[i]) && spot == 0){
-      sprintf(newWord,"%s ",newWord);
-      spot = 1;
+    //set it to stdout
+    else {
+        fpOutfile =  stdout;
     }
-  }
-  return newWord;
-}
-
-int main(int argc, char **argv){
-	FILE *data = fopen(argv[2], "r");
-	FILE *commands = fopen(argv[3], "r");
-	FILE *output = stdout;
-	if(argc == 4){
-		output = stdout;
-	}
-	else if(argc == 5){
-		output = fopen(argv[4], "w");
-	}
-	else{
-		printf("Invalid number of arguments passed\n");;
-		return 0;
-	}
-	if(strcmp(argv[1], "-r") == 0){
-		char variable = readChar(data);
-		char *word;
-		rbt *r = newRBT(displayString, stringComparator);
-		while(!feof(data)){
-			if(variable == '"'){
-				ungetc(variable, data);
-				word = readString(data);
-			}
-			else{
-				ungetc(variable, data);
-				word = readToken(data);
-			}
-			word = grammar(word);
-			if(strcmp(word, "") != 0){
-				insertRBT(r, word);
-			}
-			variable = readChar(data);
-		}
-		char commandVariable = readChar(commands);
-		while(!feof(commands)){
-			if(commandVariable == 'i'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-				if(strcmp(tempCommand, "") != 0){
-					insertRBT(r, tempCommand);
-				}
-			}
-			else if(commandVariable == 'd'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-			}
-			else if(commandVariable == 'f'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-				fprintf(output, "Frequency of \"%s\": %d\n", tempCommand, findRBT(r, tempCommand));
-			}
-			else if(commandVariable == 's'){
-				displayRBT(output, r);
-			}
-			else if(commandVariable == 'r'){
-				statisticsRBT(r, output);
-			}
-			else{
-				printf("Invalid command detected\n");
-				return 0;
-			}
-			commandVariable = readChar(commands);
-		}
-	}
-	else if(strcmp(argv[1], "-v") == 0){
-		char variable = readChar(data);
-		char *word;
-		vbst *v = newVBST(displayString, stringComparator);
-		while(!feof(data)){
-			if(variable == '"'){
-				ungetc(variable, data);
-				word = readString(data);
-			}
-			else{
-				ungetc(variable, data);
-				word = readToken(data);
-			}
-			word = grammar(word);
-			if(strcmp(word, "") != 0){
-				insertVBST(v, word);
-			}
-			variable = readChar(data);
-		}
-		char commandVariable = readChar(commands);
-		while(!feof(commands)){
-			if(commandVariable == 'i'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-				if(strcmp(tempCommand, "") != 0){
-					insertVBST(v, tempCommand);
-				}
-			}
-			else if(commandVariable == 'd'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-				if(strcmp(tempCommand, "") != 0){
-					deleteVBST(v, tempCommand);
-				}
-			}
-			else if(commandVariable == 'f'){
-				char *tempCommand;
-				commandVariable = readChar(commands);
-				if(commandVariable == '"'){
-					ungetc(commandVariable, commands);
-					tempCommand = readString(commands);
-				}
-				else{
-					ungetc(commandVariable, commands);
-					tempCommand = readToken(commands);
-				}
-				tempCommand = grammar(tempCommand);
-				fprintf(output, "Frequency of \"%s\": %d", tempCommand, findVBST(v, tempCommand));
-			}
-			else if(commandVariable == 's'){
-				displayVBST(output, v);
-			}
-			else if(commandVariable == 'r'){
-				statisticsVBST(v, output);
-			}
-			else{
-				printf("Invalid command detected\n");
-				return 1;
-			}
-			commandVariable = readChar(commands);
-		}
-	}
-	else{
-		printf("Invalid argument.\n");
-		return 0;
-	}
-	return 0;
+    if (strcmp(argv[1],"-v") == 0) {
+        vbst *v = newVBST(displayString,stringComparator);
+        readFileVBST(fpCorpus,v);
+        readCommandsVBST(fpCommands,fpOutfile,v);
+    }
+    else if (strcmp(argv[1],"-r") == 0) {
+        rbt *r = newRBT(displayString,stringComparator);
+        readFileRBT(fpCorpus,r);
+        readCommandsRBT(fpCommands,fpOutfile,r);
+    }
+    else
+        fprintf(stderr,"Error: %s is not a valid command!\n",argv[1]);
+    if(fpCorpus != NULL)
+        fclose(fpCorpus);
+    if(fpCommands != NULL)
+        fclose(fpCommands);
+    if(fpOutfile != NULL)
+        fclose(fpOutfile);
+    return 0;
 }

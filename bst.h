@@ -1,23 +1,23 @@
-/*** common binary search tree class ***/
 #include <stdio.h>
+#include <stdlib.h>
+
 #ifndef __BST_INCLUDED__
 #define __BST_INCLUDED__
 
-typedef struct bstNode{
-  struct bstNode *left;
-  struct bstNode *right;
-  struct bstNode *parent;
-  void *value;
+typedef struct bstNode {
+    struct bstNode *left;
+    struct bstNode *right;
+    struct bstNode *parent;
+    void *value;
 } bstNode;
 
-typedef struct bst{
-  bstNode *root;
-  int size;
-  void (*display)(FILE *,void *);
-  int (*compare)(void *,void *);
+typedef struct bst {
+    bstNode *root;
+    int size;
+    void (*display)(FILE *,void *);
+    int (*compare)(void *,void *);
 } bst;
 
-extern bstNode *newBSTNode(void *data);
 extern bst *newBST(void (*)(FILE *,void *),int (*)(void *,void *));
 extern bstNode *insertBST(bst *,void *);
 extern int findBST(bst *,void *);

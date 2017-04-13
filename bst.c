@@ -1,4 +1,4 @@
-#include <stdlib.h>
+
 #include "bst.h"
 #include "queue.h"
 
@@ -109,7 +109,6 @@ bstNode *swapToLeafBSTNode(bstNode *n) {
     }
 }
 
-
 void pruneBSTNode(bst *b,bstNode *n) {
     b->size--;
     //it's the root
@@ -177,12 +176,10 @@ int minHeight (bst *b) {
 }
 
 void displayBST(FILE *fp, bst *tree) {
-    //prints the proper emtpy tree
     if (tree->root == NULL) {
         fprintf(fp, "0:\n");
         return;
     }
-    //set up new queue and enqueue root and then NULL
     bstNode *n;
     queue *q = newQueue(tree->display);
     enqueue(q,tree->root);

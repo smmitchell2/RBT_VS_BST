@@ -1,190 +1,39 @@
-#include "bst.h"
 #include "rbt.h"
-#include <stdio.h>
-#include <stdlib.h>
 
-typedef struct rbtValue{
-	void *value;
-	int freq;
-	int color;
-	void (*display)(FILE *, void *);
-	int (*compare)(void *, void *);
-} rbtValue;
+typedef struct rbtValue {
+    void *rVal;
+    int freq;
+    int color;
+    void (*display)(FILE*fp,void*);
+    int (*compare)(void*,void*);
+}rbtValue;
 
-static rbtValue *newRBTValue(rbt *, void *);
-static void rbtDisplay(FILE *, void *);
+static rbtValue *newRBTValue(void (*)(FILE *,void *),int (*)(void *,void *));
+static void insertionFixUp(bst*, bstNode*);
+static bstNode *findUncle(bstNode *n);
+static int findColor(bstNode *);
+static int checkLinear(bstNode *, bstNode *);
+static void rotate(bst *, bstNode*);
+static void displayRBTValue(FILE *, void *);
+static int rbtComparator(void *, void *);
 
-static int rbtComparator(void *a, void *b){
-	rbtValue *x = (rbtValue*)a;
-    rbtValue *y = (rbtValue*)b;
-    return x->compare(x->value,y->value);
-}
-
-static int nodeComparator(void *x, void *y){
-	if(x == NULL || y == NULL){
-		return 1;
-	}
-	bstNode *temp1 = x;
-	bstNode *temp2 = y;
-	rbtValue *a = temp1->value;
-	rbtValue *b = temp2->value;
-	if(a->value == NULL || b->value == NULL){
-		return 1;
-	}
-	return a->compare(a->value, b->value);
-}
-
-rbt *newRBT(void (*display)(FILE *, void *), int(*comparator)(void *, void *)){
-	rbt *newRBT = malloc(sizeof(rbt));
-	    if (newRBT == 0) {
+rbt *newRBT(void (*d)(FILE *,void *),int (*c)(void *,void *)) {
+    rbt *r = malloc(sizeof(rbt));
+    if (r == 0) {
         fprintf(stderr,"out of memory");
         exit(-1);
     }
-	newRBT->tree = newBST(rbtDisplay, rbtComparator);
-	newRBT->display = display;
-	newRBT->compare = comparator;
-	newRBT->size = 0;
-	newRBT->words = 0;
-	return newRBT;
+    r->tree = newBST(displayRBTValue,rbtComparator);
+    r->display = d;
+    r->compare = c;
+    r->size = 0;
+    r->words = 0;
+    return r;
 }
 
-static rbtValue *newRBTValue(rbt *r, void *value){
-	rbtValue *newRBTValue = malloc(sizeof(rbtValue));
-	newRBTValue->value = value;
-	newRBTValue->freq = 1;
-	newRBTValue->display = r->display;
-	newRBTValue->compare = r->compare;
-	newRBTValue->color = 0;
-	return newRBTValue;
-}
-
-static void replaceNode(rbt *r, bstNode *oldNode, bstNode *newNode){
-	if(nodeComparator(oldNode, r->tree->root) == 0){
-		r->tree->root = newNode;
-	}
-	else{
-		if(nodeComparator(oldNode, oldNode->parent->left) == 0){
-			oldNode->parent->left = newNode;
-		}
-		else{
-			oldNode->parent->right = newNode;
-		}
-	}
-	if(newNode != NULL){
-		newNode->parent = oldNode->parent;
-	}
-}
-
-static void rightRotate(rbt *r, bstNode *node){
-	bstNode *leftNode = node->left;
-	replaceNode(r, node, leftNode);
-	node->left = leftNode->right;
-	if(leftNode->right != NULL){
-		leftNode->right->parent = node;
-	}
-	leftNode->right = node;
-	node->parent = leftNode;
-}
-
-static void leftRotate(rbt *r, bstNode *node){
-	bstNode *rightNode = node->right;
-	replaceNode(r, node, rightNode);
-	node->right = rightNode->left;
-	if(rightNode->left != NULL){
-		rightNode->left->parent = node;
-	}
-	rightNode->left = node;
-	node->parent = rightNode;
-}
-
-static int color(rbtValue *rv){
-	if(rv == NULL){
-		return 0;
-	}
-	else
-	{
-		return rv->color;
-	}
-}
-
-static bstNode *uncle(rbt *r, bstNode *b){
-	if(b->parent == NULL || b->parent->parent->left == NULL){
-		return r->tree->root;
-	}
-	if(nodeComparator(b->parent, b->parent->parent->left) == 0){
-		return b->parent->parent->right;
-	}
-	else{
-		return b->parent->parent->left;
-	}
-	return r->tree->root;
-}
-
-static void insertionFixUp(rbt *r, bstNode *node){
-	while(1){
-		if(nodeComparator(node, node->parent) == 0){
-			break;
-		}
-		if(color(node->parent->value) == 0){
-			break;
-		}
-		bstNode *unc = uncle(r, node);
-		int color1 = 0;
-		if(unc == NULL){
-			rbtValue *tempValue = newRBTValue(r, "the");
-			tempValue->color = 0;
-			color1 = 0;
-		}
-		else{
-			color1 = color(unc->value);
-		}
-		if(color1 == 1){
-			rbtValue *parentValue = node->parent->value;
-			parentValue->color = 0;
-			rbtValue *uncleValue = uncle(r, node)->value;
-			uncleValue->color = 0;
-			rbtValue *grandparentValue = node->parent->parent->value;
-			grandparentValue->color = 1;
-			node = node->parent->parent;
-		}
-		else{
-			if((nodeComparator(node, node->parent->right) == 0) && (nodeComparator(node->parent, node->parent->parent->left) == 0)){
-				bstNode *oldParent = node->parent;
-				bstNode *oldNode = node;
-				leftRotate(r, node->parent);
-				node = oldParent;
-				node->parent = oldNode;
-			
-			}
-			if((nodeComparator(node, node->parent->left) == 0) && (nodeComparator(node->parent, node->parent->parent->right) == 0)){
-				bstNode *oldParent = node->parent;
-				bstNode *oldNode = node;
-				rightRotate(r, node->parent);
-				node = oldParent;
-				node->parent = oldNode;
-			}
-			rbtValue *parentValue = node->parent->value;
-			parentValue->color = 0;
-			rbtValue *grandparentValue = node->parent->parent->value;
-			grandparentValue->color = 1;
-			if(nodeComparator(node->parent, node->parent->parent->right) == 0){
-				leftRotate(r, node->parent->parent);
-			}
-			else if(nodeComparator(node->parent, node->parent->parent->left) == 0){
-				rightRotate(r, node->parent->parent);
-			}
-			break;
-		}
-		
-	}
-	rbtValue *root = r->tree->root->value;
-	r->tree->root->parent = r->tree->root;
-	root->color = 0;
-}
-
-void insertRBT(rbt *r, void *val){
-	rbtValue *rbtV = newRBTValue(r,val);
-    rbtV->value = val;
+void insertRBT(rbt *r,void *val) {
+    rbtValue *rbtV = newRBTValue(r->display,r->compare);
+    rbtV->rVal = val;
     //if it's the root incriment size/words, color is already Black and insert it
     if (sizeRBT(r) == 0) {
         r->size++;
@@ -199,75 +48,201 @@ void insertRBT(rbt *r, void *val){
         //set node red
         rbtV->color = 1;
         n = insertBST(r->tree, rbtV);
-        insertionFixUp(r,n);
+        insertionFixUp(r->tree,n);
     }
     else
         ((rbtValue *)(n->value))->freq++;
     r->words++;
-
-	/*rbtValue *newValue = newRBTValue(r, value);
-	int v = findBST(r->tree, newValue);
-	if(v == 0){
-		(void)insertBST(r->tree, newValue);
-		bstNode *temp = findBSTNode(r->tree, newValue);
-		rbtValue *tempValue = temp->value;
-		tempValue->color = 1;
-		insertionFixUp(r, findBSTNode(r->tree, tempValue));
-		r->size++;
-		r->words++;
-	}
-	else{
-		bstNode *temp = findBSTNode(r->tree, newValue);
-		rbtValue *temporary = temp->value;
-		temporary->freq += 1;
-		r->size++;
-	}*/
 }
 
-int findRBT(rbt *r, void *value){
-	rbtValue *newValue = newRBTValue(r, value);
-	bstNode *node = findBSTNode(r->tree, newValue);
-	if(node == NULL){
-		return 0;
-	}
-	rbtValue *val = node->value;
-	return val->freq;
+int findRBT(rbt *r,void *val) {
+    rbtValue *rbtV = newRBTValue(r->display,r->compare);
+    rbtV->rVal = val;
+    //look in the bst for that value
+    bstNode *n = findBSTNode(r->tree,rbtV);
+    //if it wasn't found return 0
+    if (n == 0)
+        return 0;
+    //return the freq
+    else
+        return ((rbtValue *)(n->value))->freq;
 }
 
-int sizeRBT(rbt *r){
-	return r->size;
+void deleteRBT(rbt *r, void *val) {
+	r = NULL;
+	val = NULL;
 }
 
-int wordsRBT(rbt *r){
-	return r->words;
+int sizeRBT(rbt *r) {
+    return r->size;
 }
 
-void deleteRBT(rbt *r, void *v){
-	(void)r;
-	(void)v;
+int wordsRBT(rbt *r) {
+    return r->words;
 }
 
-void statisticsRBT(rbt *r, FILE *fp){
-	fprintf(fp, "Words/Phrases: %d\n", wordsRBT(r));
-	statisticsBST(r->tree, fp);
+void statisticsRBT(rbt *r,FILE *fp) {
+    fprintf(fp, "Words/Phrases: %d\n", wordsRBT(r));
+    statisticsBST(r->tree,fp);
 }
 
-void rbtDisplay(FILE *fp, void *v){
-	rbtValue *value = v;
-	value->display(fp, value->value);
-	int freq = value->freq;
-	if(freq > 1){
-		fprintf(fp, "-%d", freq);
-	}
-	if(value->color == 0){
-		fprintf(fp, "-B");
-	}
-	if(value->color == 1){
-		fprintf(fp, "-R");
-	}
+void displayRBT(FILE *fp,rbt *r) {
+    displayBST(fp,r->tree);
 }
 
-void displayRBT(FILE *fp, rbt *r){
-	displayBST(fp, r->tree);
+/****************************** private functions ******************************/
+
+static rbtValue *newRBTValue(void (*d)(FILE *,void *),int (*c)(void *,void *)) {
+    rbtValue *rbtV = malloc(sizeof(rbtValue));
+    if (rbtV == 0) {
+        fprintf(stderr,"out of memory");
+        exit(-1);
+    }
+    rbtV->display = d;
+    rbtV->compare = c;
+    rbtV->rVal = 0;
+    //0 is black 1 is red
+    rbtV->color = 0;
+    rbtV->freq = 1;
+    return rbtV;
 }
 
+static void insertionFixUp(bst *b, bstNode *n) {
+    bstNode *uncle = NULL, *p = NULL, *gP = NULL, *oldP, *oldN;
+    while(1) {
+        //if root exit
+        if (n == b->root)
+            break;
+        p = n->parent;
+        //if parent is black
+        if (!findColor(p))
+            break;
+        uncle = findUncle(n);
+        gP = n->parent->parent;
+        //if uncle exist and is red, color parent, uncle, gp, black set n to grandparent
+        if (findColor(uncle)) {
+            ((rbtValue*)p->value)->color = 0;
+            ((rbtValue*)uncle->value)->color = 0;
+            ((rbtValue *) gP->value)->color = 1;
+            n = gP;
+        }
+        //uncle must be black or non existant
+        else {
+            //seeing if they are linear
+            if (!checkLinear(n->parent,n)) {
+                oldP = p;
+                oldN = n;
+                //rotate x to parent
+                rotate(b,n);
+                n = oldP;
+                p = oldN;
+            }
+            //color parent black, gp red, rotate p to gP
+            ((rbtValue*)p->value)->color = 0;
+            ((rbtValue*)gP->value)->color = 1;
+            //rotate parent to grandparent
+            rotate(b,p);
+            break;
+        }
+    }
+    ((rbtValue*)b->root->value)->color = 0;
+}
+
+static int findColor(bstNode *n) {
+    if (n == NULL)
+        return 0;
+    else
+        return ((rbtValue*)n->value)->color;
+}
+
+bstNode *findUncle(bstNode *n) {
+    //if isLeftChild(parent(n)) aka. if the parent is a left child
+    if (n->parent->parent->left == n->parent) {
+        //return rightChild(grandparent(n))
+        return n->parent->parent->right;
+    }
+    else
+        return n->parent->parent->left;
+}
+
+static int checkLinear(bstNode *p, bstNode *n) {
+    //if parent is a left child
+    if (p->parent->left == p) {
+        //n must be a left child to be linear
+        if (n->parent->left == n)
+            return 1;
+        else
+            return 0;
+    }
+    //parent must be a right child
+    else {
+        //n must be a right child to be linear
+        if (n->parent->right == n)
+            return 1;
+        else
+            return 0;
+    }
+}
+
+static void rotate(bst *b, bstNode *n) {
+    bstNode *p = n->parent;
+    bstNode *gP = n->parent->parent;
+    bstNode *nL = n->left;
+    bstNode *nR = n->right;
+    //gonna rotate left
+    if (p->right == n) {
+        n->left = p;
+        p->parent = n;
+        p->right = nL;
+        if (nL != NULL)
+            nL->parent = p;
+        if (p == b->root) {
+            n->parent = n;
+            b->root = n;
+        }
+        else {
+            if (gP->left == p)
+                gP->left = n;
+            else
+                gP->right = n;
+            n->parent = gP;
+        }
+    }
+    //gonna rotate right
+    else {
+        n->right = p;
+        p->parent = n;
+        p->left = nR;
+        if (nR != NULL)
+            nR->parent = p;
+        if (p == b->root) {
+            n->parent = n;
+            b->root = n;
+        }
+        else{
+            //if p was a right child
+            if (gP->right == p)
+                gP->right = n;
+            else
+                gP->left = n;
+            n->parent = gP;
+        }
+    }
+}
+
+static void displayRBTValue(FILE *fp, void *val) {
+    rbtValue *r = (rbtValue*)val;
+    r->display(fp,r->rVal);
+    if (r->freq > 1)
+        fprintf(fp, "-%d",r->freq);
+    if (r->color == 0)
+        fprintf(fp,"-B");
+    else
+        fprintf(fp,"-R");
+}
+
+static int rbtComparator (void *a, void *b) {
+    rbtValue *x = (rbtValue*)a;
+    rbtValue *y = (rbtValue*)b;
+    return x->compare(x->rVal,y->rVal);
+}

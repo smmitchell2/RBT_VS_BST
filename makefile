@@ -1,12 +1,23 @@
-OBJS = scanner.o sll.o comparator.o  queue.o bst.o vbst.o rbt.o bstrees.o
-OOPTS = -Wall -std=c99 -c -g
-LOOPTS = -Wall -std=c99 -g
+OBJS = bstrees.o bst.o vbst.o rbt.o sll.o queue.o integer.o real.o string.o comparator.o read.o scanner.o -o bstrees
+OOPTS = -Wall -Wextra -std=c99 -g -c
+LOPTS = -Wall -Wextra -std=c99 -g
 
-bstrees : $(OBJS)
-	gcc $(LOOPTS) $(OBJS) -o bstrees
+all : bstrees
 
-bstrees.o : bstrees.c scanner.h comparator.h sll.h queue.h vbst.h bst.h rbt.h
+bstrees : bstrees.o bst.o vbst.o rbt.o sll.o queue.o integer.o real.o string.o comparator.o read.o scanner.o
+	gcc $(LOPTS) $(OBJS)
+
+bstrees.o : bstrees.c bst.h vbst.h rbt.h
 	gcc $(OOPTS) bstrees.c
+
+bst.o : bst.c bst.h
+	gcc $(OOPTS) bst.c
+
+vbst.o : vbst.c vbst.h
+	gcc $(OOPTS) vbst.c
+
+rbt.o : rbt.c rbt.h
+	gcc $(OOPTS) rbt.c
 
 sll.o : sll.c sll.h
 	gcc $(OOPTS) sll.c
@@ -14,27 +25,26 @@ sll.o : sll.c sll.h
 queue.o : queue.c queue.h sll.h
 	gcc $(OOPTS) queue.c
 
-bst.o: bst.c queue.h
-	gcc $(OOPTS) bst.c
+integer.o : integer.c integer.h
+	gcc $(OOPTS) integer.c
 
-vbst.o: vbst.c queue.h bst.h
-	gcc $(OOPTS) vbst.c
+real.o : real.c real.h
+	gcc $(OOPTS) real.c
 
-rbt.o: rbt.c queue.h bst.h
-	gcc $(OOPTS) rbt.c
+string.o : string.c string.h
+	gcc $(OOPTS) string.c
 
 comparator.o : comparator.c comparator.h
 	gcc $(OOPTS) comparator.c
 
+read.o : read.c read.h
+	gcc $(OOPTS) read.c
+
 scanner.o : scanner.c scanner.h
 	gcc $(OOPTS) scanner.c
 
-test :
-	@echo testing vanilla BST
-	./bstrees -v s.txt display
-	@echo
-	@echo testing RBT
-	./bstrees -r s.txt display
-	
-clean   :
-	rm -f *.o bstrees
+test : bstrees
+	./bstrees -v empty display
+
+clean :
+	rm -f bstrees.o bst.o vbst.o rbt.o sll.o queue.o integer.o real.o string.o comparator.o read.o scanner.o bstrees
